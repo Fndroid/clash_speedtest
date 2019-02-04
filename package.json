@@ -1,0 +1,11 @@
+{
+  "name": "clash_speedtest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fndroid",
+  "license": "MIT"
+}
