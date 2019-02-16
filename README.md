@@ -2,6 +2,8 @@
 
 基于`Speedtest.net`的Clash测速脚本（需要Nodejs环境）
 
+> 依赖库存在bug，暂无法通过http代理测速，需要搭配Proxifier使用
+
 ### 安装及使用
 
 1. Clone或下载本仓库代码
