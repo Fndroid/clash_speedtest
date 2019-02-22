@@ -15,6 +15,7 @@
     ```
     const EC = "127.0.0.1:9090" // 外部控制器 External Controller
     const TIME = 15 // 测试时间，单位秒
+    const PROXY = "http://127.0.0.1:7890" // Clash的Http代理
     ``` 
 4. 切换至需要测速的配置文件（Clash）
 5. 开始测试

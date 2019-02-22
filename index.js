@@ -6,13 +6,14 @@ const path = require('path')
 const moment = require('moment')
 
 const EC = "127.0.0.1:9090" // 外部控制器 External Controller
-const TIME = 15 // 测试时间，单位秒
+const TIME = 10 // 测试时间，单位秒
+const PROXY = "http://127.0.0.1:7890" // Clash的http代理
 
 let xlsx = node_xlsx.default
 
 let startTesting = async (id) => {
   return new Promise((resolve, reject) => {
-    var test = speedTest({ maxTime: TIME * 1000, serverId: id });
+    var test = speedTest({ maxTime: TIME * 1000, serverId: id, proxy: PROXY });
 
     test.on('data', data => {
       resolve(data)
@@ -68,10 +69,12 @@ async function main() {
     let resultArr = [['Proxy', 'Ping(ms)', 'Country', 'Upload(Mbps)', 'Download(Mbps)']]
     for (var i = 0; i < nodeList.length; i++) {
       if (await switchToNode(nodeList[i])) {
+        // process.env["HTTP_PROXY"] = process.env["http_proxy"] = PROXY
         let result = await startTesting(i)
         let timeLeft = (nodeList.length - 1 - i) * TIME * 1000
         console.log(`节点 ${nodeList[i]} 测试完成，剩余 ${nodeList.length - i - 1} 个待测节点，预计耗时 ${moment.duration(timeLeft).minutes() + 1} 分钟`)
         resultArr.push([nodeList[i], result.server.ping, result.server.country, result.speeds.upload, result.speeds.download])
+        // process.env["HTTP_PROXY"] = process.env["http_proxy"] = ""
       } else {
         console.error('切换节点失败，跳过测试')
       }
