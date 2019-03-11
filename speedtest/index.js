@@ -729,75 +729,77 @@ function speedTest(options) {
       }
     }
     self.emit('testserver', speedInfo.bestServer);
-    uploadSpeed.call(self, speedInfo.bestServer.url, sizes, options.maxTime, function(err, speed) {
-      if (err) return self.emit('error', err);
-      speedInfo.uploadSpeed = speed;
-      speedInfo.speedTestUploadSpeed = speed * speedTestUploadCorrectionFactor / 125000;
-      self.emit('uploadprogress', 100);
-      self.emit('uploadspeed', speedInfo.speedTestUploadSpeed);
+    let speed = 0
+    speedInfo.uploadSpeed = speed;
+    speedInfo.speedTestUploadSpeed = speed * speedTestUploadCorrectionFactor / 125000;
+    self.emit('uploadprogress', 100);
+    self.emit('uploadspeed', speedInfo.speedTestUploadSpeed);
 
-      //emit results as nice, clean, object
+    //emit results as nice, clean, object
 
-      /*
-      { url: 'http://208.54.87.70/speedtest/upload.jsp',
-        lat: '40.9419',
-        lon: '-74.2506',
-        name: 'Wayne, NJ',
-        country: 'United States',
-        cc: 'US',
-        sponsor: 'T-Mobile',
-        id: '1861',
-        host: '208.54.87.70:8080',
-        dist: 114.3911751633326,
-        bestPing: 37.36689500000001 }
-      */
+    /*
+    { url: 'http://208.54.87.70/speedtest/upload.jsp',
+      lat: '40.9419',
+      lon: '-74.2506',
+      name: 'Wayne, NJ',
+      country: 'United States',
+      cc: 'US',
+      sponsor: 'T-Mobile',
+      id: '1861',
+      host: '208.54.87.70:8080',
+      dist: 114.3911751633326,
+      bestPing: 37.36689500000001 }
+    */
 
-      function num(name) {
-        speedInfo.config.client[name] = parseFloat(speedInfo.config.client[name]);
-      }
+    function num(name) {
+      speedInfo.config.client[name] = parseFloat(speedInfo.config.client[name]);
+    }
 
-      num('lat');
-      num('lon');
-      num('isprating');
-      num('rating');
-      num('ispdlavg');
-      num('ispulavg');
+    num('lat');
+    num('lon');
+    num('isprating');
+    num('rating');
+    num('ispdlavg');
+    num('ispulavg');
 
-      delete speedInfo.config.client.loggedin; //We're never logged in, so this is useless.
+    delete speedInfo.config.client.loggedin; //We're never logged in, so this is useless.
 
-      //Convert to megabits/s
-      speedInfo.config.client.ispdlavg /= 1000;
-      speedInfo.config.client.ispulavg /= 1000;
+    //Convert to megabits/s
+    speedInfo.config.client.ispdlavg /= 1000;
+    speedInfo.config.client.ispulavg /= 1000;
 
-      var best = speedInfo.bestServer
-        , data = {
-          speeds: {
-            //Rounding, because these numbers look way more accurate than they are...
-            download: Math.round(speedInfo.speedTestDownloadSpeed * 1000) / 1000,
-            upload: Math.round(speedInfo.speedTestUploadSpeed * 1000) / 1000,
-            originalDownload: Math.round(speedInfo.downloadSpeed),
-            originalUpload: Math.round(speedInfo.uploadSpeed)
-          },
-          client: speedInfo.config.client,
-          server: {
-            host: url.parse(best.url).host,
-            lat: Number(best.lat),
-            lon: Number(best.lon),
-            location: best.name,
-            country: best.country,
-            cc: best.cc,
-            sponsor: best.sponsor,
-            distance: Math.round(best.dist * 100) / 100,
-            distanceMi: Math.round(best.distMi * 100) / 100,
-            ping: Math.round(best.bestPing * 10) / 10,
-            id: best.id
-          }
+    var best = speedInfo.bestServer
+      , data = {
+        speeds: {
+          //Rounding, because these numbers look way more accurate than they are...
+          download: Math.round(speedInfo.speedTestDownloadSpeed * 1000) / 1000,
+          upload: Math.round(speedInfo.speedTestUploadSpeed * 1000) / 1000,
+          originalDownload: Math.round(speedInfo.downloadSpeed),
+          originalUpload: Math.round(speedInfo.uploadSpeed)
+        },
+        client: speedInfo.config.client,
+        server: {
+          host: url.parse(best.url).host,
+          lat: Number(best.lat),
+          lon: Number(best.lon),
+          location: best.name,
+          country: best.country,
+          cc: best.cc,
+          sponsor: best.sponsor,
+          distance: Math.round(best.dist * 100) / 100,
+          distanceMi: Math.round(best.distMi * 100) / 100,
+          ping: Math.round(best.bestPing * 10) / 10,
+          id: best.id
         }
-        ;
+      }
+      ;
 
-      self.emit('data', data);
-      // postResults();
-    });
+    self.emit('data', data);
+    // uploadSpeed.call(self, speedInfo.bestServer.url, sizes, options.maxTime, function(err, speed) {
+    //   if (err) return self.emit('error', err);
+
+    //   // postResults();
+    // });
   }
 
   function postResults() {

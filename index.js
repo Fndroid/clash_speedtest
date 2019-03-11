@@ -18,7 +18,7 @@ let startTesting = async (id) => {
     var test = speedTest({ maxTime: TIME * 1000, serverId: id, proxy: PROXY });
 
     test.on('data', data => {
-      console.log('data:', data)
+      // console.log('data:', data)
       resolve(data)
     });
 
@@ -84,7 +84,9 @@ async function main() {
         let result = { speeds: { download: '-', upload: '-' }, server: { ping: '-', country: '-' } }
         try {
           result = await startTesting(i)
-        } catch(e) {}
+        } catch(e) {
+          // console.error(e.stack)
+        }
         let timeLeft = (nodeList.length - 1 - i) * (TIME + 10) * 1000
         // console.log(`节点 ${nodeList[i]} 测试完成，剩余 ${nodeList.length - i - 1} 个待测节点，预计耗时 ${moment.duration(timeLeft).minutes() + 1} 分钟`)
         barLine(ProgressBar(i + 1, nodeList.length, moment.duration(timeLeft).minutes() + 1))
@@ -109,4 +111,4 @@ async function main() {
   console.log('测速完成...')
 }
 
-main().then(_ => { })
+main().then(_ => { }).catch(e => console.error(e.stack))
