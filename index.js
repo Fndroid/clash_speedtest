@@ -1,5 +1,5 @@
-// const speedTest = require('speedtest-net');
-const speedTest = require('./speedtest/index')
+const speedTest = require('speedtest-net');
+// const speedTest = require('./speedtest/index')
 require('draftlog').into(console)
 const axios = require('axios')
 const node_xlsx = require('node-xlsx')
@@ -17,10 +17,18 @@ let startTesting = async (id) => {
   return new Promise((resolve, reject) => {
     var test = speedTest({ maxTime: TIME * 1000, serverId: id, proxy: PROXY });
 
-    test.on('data', data => {
-      // console.log('data:', data)
-      resolve(data)
-    });
+    // test.on('data', data => {
+    //   // console.log('data:', data)
+    //   resolve(data)
+    // });
+
+    setTimeout(() => {
+      resolve({ speeds: { download: '-', upload: '-' }, server: { ping: '-', country: '-' } });
+    }, (10 + TIME) * 1000 );
+
+    test.on('downloadspeed', speed => {
+      resolve({ speeds: { download: (speed).toFixed(2), upload: '-' }, server: { ping: '-', country: '-' } });
+    })
 
     test.on('error', err => {
       // console.log('err:', err)
@@ -76,7 +84,7 @@ async function main() {
   if (await setMode("Global")) {
     console.log(`Clash成功切换至Global模式，请耐心等待测试完成...\n------------------------------------------------------`)
     let nodeList = (await getNodeList())
-    let resultArr = [['Proxy', 'Ping(ms)', 'Country', 'Upload(Mbps)', 'Download(Mbps)']]
+    let resultArr = [['Proxy', 'Ping(ms)', 'Country', 'Download(Mbps)']]
     var barLine = console.draft('开始测试...')
     for (var i = 0; i < nodeList.length; i++) {
       if (await switchToNode(nodeList[i])) {
