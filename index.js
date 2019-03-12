@@ -8,7 +8,7 @@ const path = require('path')
 const moment = require('moment')
 
 const EC = "127.0.0.1:9090" // 外部控制器 External Controller
-const TIME = 7 // 测试时间，单位秒
+const TIME = 10 // 测试时间，单位秒
 const PROXY = "http://127.0.0.1:7890" // Clash的http代理
 
 let xlsx = node_xlsx.default
@@ -22,15 +22,17 @@ let startTesting = async (id) => {
     //   resolve(data)
     // });
 
-    setTimeout(() => {
+    let tid = setTimeout(() => {
       resolve({ speeds: { download: '-', upload: '-' }, server: { ping: '-', country: '-' } });
     }, (10 + TIME) * 1000 );
 
     test.on('downloadspeed', speed => {
+      clearTimeout(tid)
       resolve({ speeds: { download: (speed).toFixed(2), upload: '-' }, server: { ping: '-', country: '-' } });
     })
 
     test.on('error', err => {
+      clearTimeout(tid)
       // console.log('err:', err)
       resolve({ speeds: { download: '-', upload: '-' }, server: { ping: '-', country: '-' } });
     });
@@ -84,7 +86,7 @@ async function main() {
   if (await setMode("Global")) {
     console.log(`Clash成功切换至Global模式，请耐心等待测试完成...\n------------------------------------------------------`)
     let nodeList = (await getNodeList())
-    let resultArr = [['Proxy', 'Ping(ms)', 'Country', 'Download(Mbps)']]
+    let resultArr = [['Proxy', 'Download(Mbps)']]
     var barLine = console.draft('开始测试...')
     for (var i = 0; i < nodeList.length; i++) {
       if (await switchToNode(nodeList[i])) {
@@ -98,13 +100,13 @@ async function main() {
         let timeLeft = (nodeList.length - 1 - i) * (TIME + 10) * 1000
         // console.log(`节点 ${nodeList[i]} 测试完成，剩余 ${nodeList.length - i - 1} 个待测节点，预计耗时 ${moment.duration(timeLeft).minutes() + 1} 分钟`)
         barLine(ProgressBar(i + 1, nodeList.length, moment.duration(timeLeft).minutes() + 1))
-        resultArr.push([nodeList[i], result.server.ping, result.server.country, result.speeds.download])
+        resultArr.push([nodeList[i], result.speeds.download])
         // process.env["HTTP_PROXY"] = process.env["http_proxy"] = ""
       } else {
         // console.error('切换节点失败，跳过测试')
       }
     }
-    const OPTIONS = { '!cols': [{ wch: 20 }, { wch: 8 }, { wch: 15 }, { wch: 15 }] };
+    const OPTIONS = { '!cols': [{ wch: 30 }, { wch: 15 }] };
     let xbuffer = xlsx.build([{ name: "result", data: resultArr }], OPTIONS)
     try {
       fs.mkdirSync('output')
