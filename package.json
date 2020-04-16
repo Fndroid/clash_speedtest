@@ -9,7 +9,7 @@
   "author": "Fndroid",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "draftlog": "^1.0.12",
     "moment": "^2.24.0",
     "node-xlsx": "^0.14.1",
